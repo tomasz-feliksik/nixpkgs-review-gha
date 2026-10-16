@@ -215,11 +215,18 @@ jobs:
           if-no-files-found: error
           archive: false
 
+      # Bound the session so a forgotten one cannot hold a runner until the
+      # 6-hour job limit: wait-timeout-minutes ends it when nobody joins,
+      # timeout-minutes ends it once someone has joined and never ran
+      # `touch continue`. continue-on-error keeps the report job running.
       - name: start upterm session
         if: ${{ inputs.upterm }}
         uses: owenthereal/action-upterm@175d33786004a53b1538bcf157402b7197ce5029 # v2.6.0
+        timeout-minutes: 60
+        continue-on-error: true
         with:
           limit-access-to-actor: true
+          wait-timeout-minutes: 15
 
   report:
     runs-on: ubuntu-latest
